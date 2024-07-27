@@ -34,7 +34,7 @@ const y = d3.scaleLinear()
 const svg = d3.create("svg")
             .attr('width',width)
             .attr('height',height)
-            .attr('viewBox',[0, 0, width, height])
+            .attr('viewBox',[0, 0, width, height]) //Make chart svg responsive
             .attr('style','max-width: 100%; height: auto;');
 
 //Add a rect for each bar
