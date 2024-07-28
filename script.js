@@ -30,12 +30,8 @@ req.onload = function(){
     const yearsDate = dataset.map(item => new Date(item[0]));
 
     //Declare chart properties
-    const width = 700;
-    const height = 500;
-    const marginTop = 20;
-    const marginRight = 20;
-    const marginBottom = 30;
-    const marginLeft = 40;
+    const width = 800;
+    const height = 400;
     const barWidth = width/275; //dataset.length = 275
     const tooltip = d3.select('#container')
                       .append('div')
@@ -48,12 +44,25 @@ req.onload = function(){
 
     //Create SVG container
     const svg = d3.select('#container')
-    .append("svg")
-    .attr('width',width)
-    .attr('height',height)
-    .attr('viewBox',[0, 0, width-marginLeft, height+marginBottom]) //Make chart svg responsive
-    .attr('style','max-width: 100%; height: auto;');
+                  .append("svg")
+                  .attr('width',width + 100)
+                  .attr('height',height + 60)
 
+    //Add legend to x-axis
+    svg.append('text')
+       .attr('x', width/2 + 120)
+       .attr('y', height + 50)
+       .text('More Information: http://www.bea.gov/national/pdf/nipaguid.pdf') 
+       .attr('class','info');
+
+    //Add legend to y-axis
+    svg.append('text')
+       .attr('x', -200)
+       .attr('y', 80)
+       .attr('transform','rotate(-90)')
+       .text('Gross Domestic Product');
+
+    
     const xMax = new Date(d3.max(yearsDate));
     xMax.setMonth(xMax.getMonth()+3);
     const xScale = d3.scaleTime()
@@ -66,14 +75,7 @@ req.onload = function(){
     svg.append('g')
        .call(xAxis)
        .attr('id','x-axis')
-       .attr('transform',`translate(0,${height-marginBottom})`);
-       
-    //Add legend to x-axis
-    svg.append('text')
-       .attr('x', width/2 - 20)
-       .attr('y', height + 10)
-       .text('More Information: http://www.bea.gov/national/pdf/nipaguid.pdf') 
-       .attr('class','info');
+       .attr('transform',`translate(60,400)`);
 
     const GDP = dataset.map(item => item[1]);
     
@@ -81,15 +83,11 @@ req.onload = function(){
     
     const gdpMax = d3.max(GDP);
     
-    const linearScale = d3.scaleLinear()
-                          .domain([0,gdpMax])
-                          .range([0,height - marginTop - marginBottom]);
+    const linearScale = d3.scaleLinear().domain([0,gdpMax]).range([0,height]);
     
     scaleGDP = GDP.map(item => linearScale(item));
     
-    const yAxisScale = d3.scaleLinear()
-                         .domain([0,gdpMax])
-                         .range([height-marginBottom, marginTop]);
+    const yAxisScale = d3.scaleLinear().domain([0,gdpMax]).range([height,0]);
     
     const yAxis = d3.axisLeft(yAxisScale);
     
@@ -97,14 +95,7 @@ req.onload = function(){
     svg.append('g')
        .call(yAxis)
        .attr('id','y-axis')       
-       .attr('transform',`translate(0,0)`);       
-    
-    //Add legend to y-axis
-    svg.append('text')
-       .attr('x', -width/4 + 10)
-       .attr('y', 20)
-       .attr('transform','rotate(-90)')
-       .text('Gross Domestic Product');
+       .attr('transform',`translate(60,0)`);       
     
     //Draw rects for each data
     d3.select('svg')
@@ -116,24 +107,25 @@ req.onload = function(){
       .attr('data-gdp', (d,i) => dataset[i][1])
       .attr('class','bar')
       .attr('x', (d,i) => xScale(yearsDate[i]))
-      .attr('y', d => height - d - marginBottom - 1)
+      .attr('y', d => height - d)
       .attr('width', barWidth)
       .attr('height', d => d)
       .attr('index', (d,i) => i)
       .attr('fill','steelblue')
+      .attr('transform','translate(60,0)')
       .on('mouseover', (event,d) => {
         //d is the height of the current rect
         const i = event.currentTarget.getAttribute('index');
         
-        // overlay
-        //     .transition()
-        //     .duration(0)
-        //     .style('height', d + 'px')
-        //     .style('width', barWidth + 'px')
-        //     .style('opacity',0.9)
-        //     .style('left',i * barWidth + 0 + 'px')
-        //     .style('top', height - d + 136 + 'px')
-        //     .style('transform','translateX(60px)');
+        overlay
+            .transition()
+            .duration(0)
+            .style('height', d + 60 + 'px')
+            .style('width', barWidth + 'px')
+            .style('opacity', 0.9)
+            .style('left', i * barWidth + 0 + 'px')
+            .style('top', height - d + 'px')
+            .style('transform','translateX(80px)');
         tooltip.transition().duration(200).style('opacity',0.9);
         tooltip
             .html(
@@ -145,8 +137,8 @@ req.onload = function(){
             )
             .attr('data-date',dataset[i][0])
             .style('left', i * barWidth + 30 + 'px')
-            .style('top', height+'px')
-            .style('transform', 'translateX(60px)') 
+            .style('top', height - 100 +'px')
+            .style('transform','translateX(60px)') 
       })
       .on('mouseout', function(){
         tooltip.transition().duration(200).style('opacity',0);
