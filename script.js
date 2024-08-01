@@ -117,15 +117,6 @@ req.onload = function(){
         //d is the height of the current rect
         const i = event.currentTarget.getAttribute('index');
         
-        overlay
-            .transition()
-            .duration(0)
-            .style('height', d + 60 + 'px')
-            .style('width', barWidth + 'px')
-            .style('opacity', 0.9)
-            .style('left', i * barWidth + 0 + 'px')
-            .style('top', height - d + 'px')
-            .style('transform','translateX(80px)');
         tooltip.transition().duration(200).style('opacity',0.9);
         tooltip
             .html(
@@ -138,11 +129,18 @@ req.onload = function(){
             .attr('data-date',dataset[i][0])
             .style('left', i * barWidth + 30 + 'px')
             .style('top', height - 100 +'px')
-            .style('transform','translateX(60px)') 
+            .style('transform','translateX(60px)')
+        
+            d3.select(event.currentTarget)
+              .style('background','white')
+              .style('opacity', 0)
+
       })
-      .on('mouseout', function(){
+      .on('mouseout', function(event){
         tooltip.transition().duration(200).style('opacity',0);
-        overlay.transition().duration(200).style('opacity',0);
+        d3.select(event.currentTarget)
+          .style('background-color','none')
+          .style('opacity', 0.9)
       });
 }
 
